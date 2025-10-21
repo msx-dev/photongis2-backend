@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from utils import create_tables
+from routers import auth_router
 
 @asynccontextmanager
 async def lifespan(app:FastAPI):
@@ -9,7 +10,8 @@ async def lifespan(app:FastAPI):
     yield
 
 
-app = FastAPI()
+app = FastAPI(lifespan=lifespan)
+app.include_router(router=auth_router, tags=["Auth"], prefix="/auth")
 
 @app.get("/health")
 def index():
