@@ -9,15 +9,17 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 auth_router = APIRouter(prefix="/auth", tags=["Auth"])
 
+
 @auth_router.post("/signup", response_model=Token)
 def signup(user_data: UserCreate, db: Session = Depends(get_db)):
     try:
         new_user = create_user(db, user_data)
-    #ValueError returned from create_user
+    # ValueError returned from create_user
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     access_token = create_access_token({"sub": new_user.email})
     return {"access_token": access_token}
+
 
 @auth_router.post("/login", response_model=Token)
 def login(form_data: UserLogin, db: Session = Depends(get_db)):

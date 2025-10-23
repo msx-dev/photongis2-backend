@@ -13,29 +13,32 @@ from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 bearer_scheme = HTTPBearer()
 
+
 def create_user(db: Session, user_data: UserCreate) -> User:
-     # Check if user already exists
+    # Check if user already exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
         raise ValueError("Email already registered")
-    
+
     # Create new user
     user = User(
         first_name=user_data.first_name,
         last_name=user_data.last_name,
         email=user_data.email,
-        password=hash_password(user_data.password)
+        password=hash_password(user_data.password),
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
 
+
 def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     user = db.query(User).filter(User.email == email).first()
     if user and verify_password(password, user.password):
         return user
     return None
+
 
 def get_current_user(
     credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
@@ -48,7 +51,9 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        payload = jwt.decode(
+            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
+        )
         email: str = payload.get("sub")
         if email is None:
             raise credentials_exception
