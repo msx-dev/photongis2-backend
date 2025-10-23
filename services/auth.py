@@ -3,6 +3,15 @@ from typing import Optional
 from models import User
 from schemas import UserCreate
 from utils import hash_password, verify_password
+from jose import jwt, JWTError
+from fastapi import Depends, HTTPException, status, Security
+from sqlalchemy.orm import Session
+from core import settings
+from database import get_db
+from models import User
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
+
+bearer_scheme = HTTPBearer()
 
 def create_user(db: Session, user_data: UserCreate) -> User:
      # Check if user already exists
@@ -27,3 +36,26 @@ def authenticate_user(db: Session, email: str, password: str) -> Optional[User]:
     if user and verify_password(password, user.password):
         return user
     return None
+
+def get_current_user(
+    credentials: HTTPAuthorizationCredentials = Security(bearer_scheme),
+    db: Session = Depends(get_db),
+):
+    token = credentials.credentials
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM])
+        email: str = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+    except JWTError:
+        raise credentials_exception
+
+    user = db.query(User).filter(User.email == email).first()
+    if user is None:
+        raise credentials_exception
+    return user

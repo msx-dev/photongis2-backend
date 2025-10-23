@@ -1,1 +1,1 @@
-from .auth import create_user, authenticate_user
+from .auth import create_user, authenticate_user, get_current_user
