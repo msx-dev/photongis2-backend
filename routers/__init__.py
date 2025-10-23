@@ -1,2 +1,2 @@
-from .auth import auth_router
-from .users import user_router
+from .auth import auth_router  # noqa
+from .users import user_router  # noqa

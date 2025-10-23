@@ -1,1 +1,8 @@
-from .users import UserLogin, UserUpdate, UserCreate, UserOutput, UserWithToken, Token
+from .users import (  # noqa
+    UserLogin,
+    UserUpdate,
+    UserCreate,
+    UserOutput,
+    UserWithToken,
+    Token,
+)

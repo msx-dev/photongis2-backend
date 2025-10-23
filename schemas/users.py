@@ -1,4 +1,4 @@
-from pydantic import EmailStr, BaseModel, Field
+from pydantic import EmailStr, BaseModel
 from typing import Union
 
 

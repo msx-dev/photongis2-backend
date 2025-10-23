@@ -1,7 +1,7 @@
 from database import Base, engine
 
 # Models need to be imported here in order to create the tables
-from models import User
+from models import User  # noqa
 
 
 def create_tables():

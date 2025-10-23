@@ -1,4 +1,3 @@
-from sqlalchemy.orm import Session
 from typing import Optional
 from models import User
 from schemas import UserCreate
@@ -8,7 +7,6 @@ from fastapi import Depends, HTTPException, status, Security
 from sqlalchemy.orm import Session
 from core import settings
 from database import get_db
-from models import User
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
 bearer_scheme = HTTPBearer()
