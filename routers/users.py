@@ -6,6 +6,6 @@ from services import get_current_user
 user_router = APIRouter(prefix="/users", tags=["Users"])
 
 
-@user_router.get("/me", response_model=UserOutput)
+@user_router.get("/me", response_model=UserOutput, response_model_exclude_none=True)
 def read_users_me(current_user: User = Depends(get_current_user)):
     return current_user
