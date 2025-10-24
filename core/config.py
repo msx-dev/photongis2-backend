@@ -5,7 +5,7 @@ load_dotenv()  # Reads .env file
 
 
 class Settings:
-    PROJECT_NAME: str = "My FastAPI App"
+    PROJECT_NAME: str = "PhotonGIS_2"
     DATABASE_URL: str = os.getenv("DATABASE_URL")
     JWT_SECRET: str = os.getenv("JWT_SECRET")
     JWT_ALGORITHM: str = "HS256"
