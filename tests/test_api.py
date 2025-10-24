@@ -1,10 +1,12 @@
 from fastapi.testclient import TestClient
 from main import app
+import uuid
 
-
+# Currently there is no test db
 client = TestClient(app)
 
-test_user = {"email": "test@test.com", "password": "Justtesting123"}
+# Unique email per each test
+test_user = {"email": f"test_{uuid.uuid4().hex}@test.com", "password": "Justtesting123"}
 
 
 def test_health():
