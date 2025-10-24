@@ -1,11 +1,11 @@
 from typing import Optional
 from models import User
 from schemas import UserCreate
-from utils import hash_password, verify_password
-from jose import jwt, JWTError
+from utils import hash_password, verify_password, decode_token
+from jose import JWTError
 from fastapi import Depends, HTTPException, status, Security
 from sqlalchemy.orm import Session
-from core import settings
+
 from database import get_db
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 
@@ -49,10 +49,8 @@ def get_current_user(
         headers={"WWW-Authenticate": "Bearer"},
     )
     try:
-        payload = jwt.decode(
-            token, settings.JWT_SECRET, algorithms=[settings.JWT_ALGORITHM]
-        )
-        email: str = payload.get("sub")
+        payload = decode_token(token)
+        email: Optional[str] = payload.get("sub")
         if email is None:
             raise credentials_exception
     except JWTError:
