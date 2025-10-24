@@ -18,4 +18,4 @@ app.include_router(user_router)
 
 @app.get("/health")
 def index():
-    return {"status": "All good. Running ..."}
+    return "All good."
