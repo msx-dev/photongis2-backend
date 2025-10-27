@@ -9,4 +9,4 @@ class UserProject(BaseModel):
 
 
 class ProjectCreate(BaseModel):
-    name: Annotated[str, StringConstraints(min_length=1, max_length=250)]
+    name: Annotated[str, StringConstraints(min_length=1, max_length=50)]
