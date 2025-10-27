@@ -6,3 +6,5 @@ from .users import (  # noqa
     UserWithToken,
     Token,
 )
+
+from .projects import UserProject  # noqa
