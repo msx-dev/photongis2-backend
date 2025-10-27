@@ -7,4 +7,4 @@ from .users import (  # noqa
     Token,
 )
 
-from .projects import UserProject  # noqa
+from .projects import UserProject, ProjectCreate  # noqa

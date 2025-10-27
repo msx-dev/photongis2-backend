@@ -1,5 +1,6 @@
 from pydantic import EmailStr, BaseModel, ConfigDict
 from typing import Union, Optional
+import uuid
 
 
 class UserCreate(BaseModel):
@@ -10,7 +11,7 @@ class UserCreate(BaseModel):
 
 
 class UserOutput(BaseModel):
-    id: int
+    id: uuid.UUID
     first_name: Optional[str] = None
     last_name: Optional[str] = None
     email: EmailStr
@@ -19,7 +20,7 @@ class UserOutput(BaseModel):
 
 
 class UserUpdate(BaseModel):
-    id: int
+    id: uuid.UUID
     first_name: Union[str, None] = None
     last_name: Union[str, None] = None
     email: Union[EmailStr, None] = None
