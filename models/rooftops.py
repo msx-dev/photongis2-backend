@@ -5,19 +5,19 @@ from sqlalchemy.dialects.postgresql import JSONB
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models import User
+    from models import Project
 
 
 class Rooftop(Base):
-    __tablename__ = "rooftops2"
+    __tablename__ = "rooftops"
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
-    owner_id: Mapped[int] = mapped_column(
-        Integer, ForeignKey("users.id", ondelete="CASCADE")
+    project_id: Mapped[int] = mapped_column(
+        Integer, ForeignKey("projects.id", ondelete="CASCADE")
     )
 
     polygon: Mapped[list] = mapped_column(JSONB, nullable=False)
     angle: Mapped[float] = mapped_column(Float, nullable=False)
     slope: Mapped[float] = mapped_column(Float, nullable=False)
 
-    owner: Mapped["User"] = relationship("User", back_populates="rooftops")
+    project: Mapped["Project"] = relationship("Project", back_populates="rooftops")

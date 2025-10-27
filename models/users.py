@@ -4,7 +4,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models import Rooftop
+    from models import Project
 
 
 class User(Base):
@@ -16,6 +16,6 @@ class User(Base):
     email: Mapped[str] = mapped_column(String(100))
     password: Mapped[str] = mapped_column(String(100))
 
-    rooftops: Mapped[list["Rooftop"]] = relationship(
-        "Rooftop", back_populates="owner", cascade="all, delete-orphan"
+    projects: Mapped[list["Project"]] = relationship(
+        "Project", back_populates="owner", cascade="all, delete-orphan"
     )
