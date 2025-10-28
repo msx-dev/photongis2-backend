@@ -7,4 +7,4 @@ from .users import (  # noqa
     Token,
 )
 from .projects import UserProject, ProjectCreate, ProjectUpdate, ProjectDelete  # noqa
-from .rooftops import ProjectRooftop, RooftopCreate  # noqa
+from .rooftops import ProjectRooftop, RooftopCreate, RooftopUpdate  # noqa

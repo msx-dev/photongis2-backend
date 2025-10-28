@@ -5,4 +5,4 @@ from .projects import (  # noqa
     update_user_project,
     delete_user_project,
 )
-from .rooftops import get_projects_rooftops, create_new_rooftop  # noqa
+from .rooftops import get_projects_rooftops, create_new_rooftop, update_rooftop  # noqa

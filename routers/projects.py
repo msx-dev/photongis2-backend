@@ -21,7 +21,9 @@ def get_all_user_projects(
     return get_user_project(current_user, db)
 
 
-@projects_router.post("/create", response_model=UserProject)
+@projects_router.post(
+    "/create", response_model=UserProject, status_code=status.HTTP_201_CREATED
+)
 def create_new_project(
     project: ProjectCreate,
     current_user: User = Depends(get_current_user),
