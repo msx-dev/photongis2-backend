@@ -18,7 +18,6 @@ class RooftopCreate(BaseModel):
 
 
 class RooftopUpdate(BaseModel):
-    id: uuid.UUID
     polygon: Optional[list[list[float]]]
     angle: Optional[float]
     slope: Optional[float]

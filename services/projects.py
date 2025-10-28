@@ -1,6 +1,7 @@
+import uuid
 from sqlalchemy.orm import Session
 from models import User
-from schemas import UserProject, ProjectCreate, ProjectUpdate, ProjectDelete
+from schemas import UserProject, ProjectCreate, ProjectUpdate
 from models import Project
 from fastapi import HTTPException, status, responses
 
@@ -33,12 +34,14 @@ def create_new_user_project(
     return new_project
 
 
-def update_user_project(project_data: ProjectUpdate, db: Session) -> UserProject:
-    project = db.query(Project).filter((Project.id) == project_data.id).first()
+def update_user_project(
+    project_id: uuid.UUID, project_data: ProjectUpdate, db: Session
+) -> UserProject:
+    project = db.query(Project).filter((Project.id) == project_id).first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with id {project_data.id} not found.",
+            detail=f"Project with id {project_id} not found.",
         )
     for key, value in project_data.model_dump(exclude_unset=True).items():
         setattr(project, key, value)
@@ -49,12 +52,12 @@ def update_user_project(project_data: ProjectUpdate, db: Session) -> UserProject
     return project
 
 
-def delete_user_project(project_data: ProjectDelete, db: Session):
-    project = db.query(Project).filter(Project.id == project_data.id).first()
+def delete_user_project(project_id: uuid.UUID, db: Session):
+    project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail=f"Project with id {project_data.id} not found.",
+            detail=f"Project with id {project_id} not found.",
         )
     db.delete(project)
     db.commit()
