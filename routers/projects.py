@@ -1,10 +1,15 @@
 from fastapi import APIRouter, Depends, status
 from schemas import UserProject, ProjectCreate, ProjectUpdate, ProjectDelete
-from models import User, Project
+from models import User
 from sqlalchemy.orm import Session
 from services import get_current_user
 from database import get_db
-from services import create_new_user_project, update_user_project, delete_user_project
+from services import (
+    create_new_user_project,
+    update_user_project,
+    delete_user_project,
+    get_user_project,
+)
 
 projects_router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -13,8 +18,7 @@ projects_router = APIRouter(prefix="/projects", tags=["Projects"])
 def get_all_user_projects(
     current_user: User = Depends(get_current_user), db: Session = Depends(get_db)
 ):
-    projects = db.query(Project).filter((Project.owner_id) == current_user.id).all()
-    return projects
+    return get_user_project(current_user, db)
 
 
 @projects_router.post("/create", response_model=UserProject)

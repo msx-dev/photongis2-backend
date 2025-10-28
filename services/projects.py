@@ -5,6 +5,11 @@ from models import Project
 from fastapi import HTTPException, status, responses
 
 
+def get_user_project(user: User, db: Session) -> list[Project]:
+    projects = db.query(Project).filter((Project.owner_id) == user.id).all()
+    return projects
+
+
 def create_new_user_project(
     project: ProjectCreate, db: Session, current_user: User
 ) -> UserProject:
