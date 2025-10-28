@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends
-from schemas import UserProject, ProjectCreate
+from schemas import UserProject, ProjectCreate, ProjectUpdate
 from models import User, Project
 from sqlalchemy.orm import Session
 from services import get_current_user
 from database import get_db
-from services import create_new_user_project
+from services import create_new_user_project, update_user_project
 
 projects_router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -24,3 +24,12 @@ def create_new_project(
     db: Session = Depends(get_db),
 ):
     return create_new_user_project(project, db, current_user)
+
+
+@projects_router.patch("/update", response_model=UserProject)
+def update_project(
+    project: ProjectUpdate,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return update_user_project(project, db)
