@@ -8,3 +8,9 @@ class ProjectRooftop(BaseModel):
     polygon: list[list[float]]
     angle: float
     slope: float
+
+
+class RooftopCreate(BaseModel):
+    polygon: list[list[float]]
+    angle: float
+    slope: float
