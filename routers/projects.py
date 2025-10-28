@@ -1,10 +1,10 @@
-from fastapi import APIRouter, Depends
-from schemas import UserProject, ProjectCreate, ProjectUpdate
+from fastapi import APIRouter, Depends, status
+from schemas import UserProject, ProjectCreate, ProjectUpdate, ProjectDelete
 from models import User, Project
 from sqlalchemy.orm import Session
 from services import get_current_user
 from database import get_db
-from services import create_new_user_project, update_user_project
+from services import create_new_user_project, update_user_project, delete_user_project
 
 projects_router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -33,3 +33,12 @@ def update_project(
     db: Session = Depends(get_db),
 ):
     return update_user_project(project, db)
+
+
+@projects_router.delete("/delete", status_code=status.HTTP_204_NO_CONTENT)
+def delete_project(
+    project: ProjectDelete,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return delete_user_project(project, db)

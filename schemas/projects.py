@@ -15,3 +15,7 @@ class ProjectCreate(BaseModel):
 class ProjectUpdate(BaseModel):
     id: uuid.UUID
     name: Optional[str]
+
+
+class ProjectDelete(BaseModel):
+    id: uuid.UUID

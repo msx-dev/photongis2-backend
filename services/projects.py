@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from models import User
-from schemas import UserProject, ProjectCreate, ProjectUpdate
+from schemas import UserProject, ProjectCreate, ProjectUpdate, ProjectDelete
 from models import Project
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, responses
 
 
 def create_new_user_project(
@@ -42,3 +42,15 @@ def update_user_project(project_data: ProjectUpdate, db: Session) -> UserProject
     db.refresh(project)
 
     return project
+
+
+def delete_user_project(project_data: ProjectDelete, db: Session):
+    project = db.query(Project).filter(Project.id == project_data.id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project with id {project_data.id} not found.",
+        )
+    db.delete(project)
+    db.commit()
+    return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
