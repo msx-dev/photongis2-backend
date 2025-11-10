@@ -20,8 +20,17 @@ class Rooftop(Base):
         UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE")
     )
 
-    polygon: Mapped[list] = mapped_column(JSONB, nullable=False)
+    additional_panels: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    initial_polygon: Mapped[list] = mapped_column(JSONB, nullable=False)
+    transformed_additional_panels: Mapped[dict] = mapped_column(JSONB, nullable=False)
+
     angle: Mapped[float] = mapped_column(Float, nullable=False)
     slope: Mapped[float] = mapped_column(Float, nullable=False)
+
+    panel_width: Mapped[float] = mapped_column(Float, nullable=False)
+    panel_height: Mapped[float] = mapped_column(Float, nullable=False)
+    spacing: Mapped[float] = mapped_column(Float, nullable=False)
+
+    solar_production: Mapped[dict] = mapped_column(JSONB, nullable=True)
 
     project: Mapped["Project"] = relationship("Project", back_populates="rooftops")

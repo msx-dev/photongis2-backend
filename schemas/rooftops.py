@@ -1,20 +1,36 @@
 from pydantic import BaseModel
-from typing import Optional
+from typing import Optional, Dict
 import uuid
+
+
+class Panel(BaseModel):
+    x: int
+    y: int
+    coords: list[list[float]]
 
 
 class ProjectRooftop(BaseModel):
     id: uuid.UUID
     project_id: uuid.UUID
-    polygon: list[list[float]]
+    additional_panels: Dict[str, Panel]
+    initial_polygon: list[list[float]]
+    transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
+    panel_width: float
+    panel_height: float
+    spacing: float
 
 
 class RooftopCreate(BaseModel):
-    polygon: list[list[float]]
+    additional_panels: Dict[str, Panel]
+    initial_polygon: list[list[float]]
+    transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
+    panel_width: float
+    panel_height: float
+    spacing: float
 
 
 class RooftopUpdate(BaseModel):

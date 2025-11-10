@@ -6,6 +6,13 @@ import uuid
 
 
 def get_projects_rooftops(project_id: uuid.UUID, db: Session) -> list[Rooftop]:
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Can't find project with id '{project_id}'.",
+        )
+
     rooftops = db.query(Rooftop).filter((Rooftop.project_id) == project_id).all()
     return rooftops
 
