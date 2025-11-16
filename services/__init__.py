@@ -11,3 +11,5 @@ from .rooftops import (  # noqa
     update_project_rooftop,
     delete_project_rooftop,
 )
+
+from .panels import get_user_panels  # noqa

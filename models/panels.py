@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 import uuid
 
 if TYPE_CHECKING:
-    from models import User
+    from models import User, Rooftop
 
 
 class Panel(Base):
@@ -26,4 +26,5 @@ class Panel(Base):
     spacing: Mapped[int] = mapped_column(Integer, nullable=False)
     power: Mapped[int] = mapped_column(Integer, nullable=False)
 
+    rooftops: Mapped[list["Rooftop"]] = relationship("Rooftop", back_populates="panel")
     owner: Mapped["User"] = relationship("User", back_populates="panels")

@@ -36,5 +36,5 @@ class Rooftop(Base):
 
     solar_production: Mapped[dict] = mapped_column(JSONB, nullable=True)
 
-    panel: Mapped["Panel"] = relationship("Panel", back_populates="panels")
+    panel: Mapped["Panel"] = relationship("Panel", back_populates="rooftops")
     project: Mapped["Project"] = relationship("Project", back_populates="rooftops")
