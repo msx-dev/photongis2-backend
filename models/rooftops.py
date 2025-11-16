@@ -7,7 +7,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from models import Project
+    from models import Project, Panel
 
 
 class Rooftop(Base):
@@ -18,6 +18,9 @@ class Rooftop(Base):
     )
     project_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("projects.id", ondelete="CASCADE")
+    )
+    panel_id: Mapped[uuid.UUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("panels.id", ondelete="CASCADE")
     )
 
     additional_panels: Mapped[dict] = mapped_column(JSONB, nullable=False)
@@ -33,4 +36,5 @@ class Rooftop(Base):
 
     solar_production: Mapped[dict] = mapped_column(JSONB, nullable=True)
 
+    panel: Mapped["Panel"] = relationship("Panel", back_populates="panels")
     project: Mapped["Project"] = relationship("Project", back_populates="rooftops")
