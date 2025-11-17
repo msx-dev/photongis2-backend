@@ -17,9 +17,6 @@ class ProjectRooftop(BaseModel):
     transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
-    panel_width: float
-    panel_height: float
-    spacing: float
 
 
 class RooftopCreate(BaseModel):
@@ -28,9 +25,6 @@ class RooftopCreate(BaseModel):
     transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
-    panel_width: float
-    panel_height: float
-    spacing: float
 
 
 class RooftopUpdate(BaseModel):
