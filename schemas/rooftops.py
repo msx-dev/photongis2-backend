@@ -17,6 +17,7 @@ class ProjectRooftop(BaseModel):
     transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
+    solar_production: Optional[dict] = None
 
 
 class RooftopCreate(BaseModel):
@@ -25,6 +26,7 @@ class RooftopCreate(BaseModel):
     transformed_additional_panels: Dict[str, Panel]
     angle: float
     slope: float
+    panel_id: uuid.UUID
 
 
 class RooftopUpdate(BaseModel):

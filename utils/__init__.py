@@ -6,3 +6,4 @@ from .jwt_handler import (  # noqa
     validate_refresh_token,
     decode_token,
 )
+from .solar import transform_pvcalc_data  # noqa
