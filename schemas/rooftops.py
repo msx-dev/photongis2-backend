@@ -29,6 +29,7 @@ class RooftopCreate(BaseModel):
     additional_panels: Dict[str, Panel]
     initial_polygon: list[list[float]]
     transformed_additional_panels: Dict[str, Panel]
+    spacing: int
     angle: float
     slope: float
     panel_id: uuid.UUID
@@ -38,3 +39,4 @@ class RooftopUpdate(BaseModel):
     polygon: Optional[list[list[float]]]
     angle: Optional[float]
     slope: Optional[float]
+    spacing: Optional[int]

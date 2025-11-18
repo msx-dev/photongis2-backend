@@ -1,7 +1,7 @@
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
-from sqlalchemy import ForeignKey, Float
+from sqlalchemy import ForeignKey, Float, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
 from typing import TYPE_CHECKING
@@ -29,6 +29,7 @@ class Rooftop(Base):
 
     angle: Mapped[float] = mapped_column(Float, nullable=False)
     slope: Mapped[float] = mapped_column(Float, nullable=False)
+    spacing: Mapped[int] = mapped_column(Integer, nullable=False)
 
     solar_production: Mapped[dict] = mapped_column(JSONB, nullable=True)
 

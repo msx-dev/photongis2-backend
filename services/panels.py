@@ -19,7 +19,6 @@ def create_new_user_panel(
         height=panel.height,
         width=panel.width,
         power=panel.power,
-        spacing=panel.spacing,
         owner_id=current_user.id,
     )
     db.add(db_panel)

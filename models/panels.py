@@ -23,7 +23,6 @@ class Panel(Base):
     name: Mapped[str] = mapped_column(String(50), nullable=True)
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
-    spacing: Mapped[int] = mapped_column(Integer, nullable=False)
     power: Mapped[int] = mapped_column(Integer, nullable=False)
 
     rooftops: Mapped[list["Rooftop"]] = relationship("Rooftop", back_populates="panel")

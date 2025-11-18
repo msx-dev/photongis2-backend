@@ -30,7 +30,6 @@ def get_projects_rooftops(project_id: uuid.UUID, db: Session):
         r["height"] = panel.height
         r["power"] = panel.power
         r["name"] = panel.name
-        r["spacing"] = panel.spacing
 
         response.append(r)
 

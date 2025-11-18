@@ -9,7 +9,6 @@ class UserPanel(BaseModel):
     height: Annotated[int, Field(ge=0)]
     width: Annotated[int, Field(ge=0)]
     power: Annotated[int, Field(ge=0)]
-    spacing: Annotated[int, Field(ge=0)]
 
 
 class PanelCreate(BaseModel):
@@ -17,4 +16,3 @@ class PanelCreate(BaseModel):
     height: Annotated[int, Field(ge=0)]
     width: Annotated[int, Field(ge=0)]
     power: Annotated[int, Field(ge=0)]
-    spacing: Annotated[int, Field(ge=0)]
