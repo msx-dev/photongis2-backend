@@ -59,7 +59,6 @@ def create_new_rooftop(
         new_rooftop.height = panel.height
         new_rooftop.power = panel.power
         new_rooftop.name = panel.name
-        new_rooftop.spacing = panel.spacing
     else:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
