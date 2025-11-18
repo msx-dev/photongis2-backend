@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Rooftop, Project
+from models import Rooftop, Project, Panel
 from schemas import RooftopCreate, ProjectRooftop, RooftopUpdate
 from fastapi import HTTPException, status, responses
 from utils import transform_pvcalc_data
@@ -7,7 +7,7 @@ import uuid
 import requests
 
 
-def get_projects_rooftops(project_id: uuid.UUID, db: Session) -> list[Rooftop]:
+def get_projects_rooftops(project_id: uuid.UUID, db: Session):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:
         raise HTTPException(
@@ -15,8 +15,26 @@ def get_projects_rooftops(project_id: uuid.UUID, db: Session) -> list[Rooftop]:
             detail=f"Can't find project with id '{project_id}'.",
         )
 
-    rooftops = db.query(Rooftop).filter((Rooftop.project_id) == project_id).all()
-    return rooftops
+    rooftops = db.query(Rooftop).filter(Rooftop.project_id == project_id).all()
+
+    response = []
+
+    for rooftop in rooftops:
+        panel = rooftop.panel
+
+        # Convert ORM → dict
+        r = rooftop.__dict__.copy()
+        r.pop("_sa_instance_state", None)
+
+        r["width"] = panel.width
+        r["height"] = panel.height
+        r["power"] = panel.power
+        r["name"] = panel.name
+        r["spacing"] = panel.spacing
+
+        response.append(r)
+
+    return response
 
 
 def create_new_rooftop(
@@ -35,7 +53,21 @@ def create_new_rooftop(
     db.commit()
     db.refresh(new_rooftop)
 
-    # extract lat, long from initial polygon
+    # Fetch the associated panel to pull width, height, power, and name
+    panel = db.query(Panel).filter(Panel.id == new_rooftop.panel_id).first()
+    if panel:
+        new_rooftop.width = panel.width
+        new_rooftop.height = panel.height
+        new_rooftop.power = panel.power
+        new_rooftop.name = panel.name
+        new_rooftop.spacing = panel.spacing
+    else:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Can't find panel with id '{new_rooftop.panel_id}'.",
+        )
+
+    # Extract lat, lon from initial polygon
     try:
         first_point = new_rooftop.initial_polygon[0]
         lon, lat = first_point[0], first_point[1]
@@ -58,6 +90,7 @@ def create_new_rooftop(
             status_code=status.HTTP_502_BAD_GATEWAY,
             detail=f"PVCalc API error: {e}",
         )
+
     new_rooftop.solar_production = transform_pvcalc_data(pvcalc_result)
     db.commit()
     db.refresh(new_rooftop)

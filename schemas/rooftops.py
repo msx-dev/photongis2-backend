@@ -18,6 +18,11 @@ class ProjectRooftop(BaseModel):
     angle: float
     slope: float
     solar_production: Optional[dict] = None
+    spacing: int
+    width: int
+    height: int
+    power: int
+    name: str
 
 
 class RooftopCreate(BaseModel):

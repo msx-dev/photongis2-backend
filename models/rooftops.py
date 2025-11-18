@@ -23,9 +23,9 @@ class Rooftop(Base):
         UUID(as_uuid=True), ForeignKey("panels.id", ondelete="CASCADE")
     )
 
-    additional_panels: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    additional_panels: Mapped[dict] = mapped_column(JSONB)
     initial_polygon: Mapped[list] = mapped_column(JSONB, nullable=False)
-    transformed_additional_panels: Mapped[dict] = mapped_column(JSONB, nullable=False)
+    transformed_additional_panels: Mapped[dict] = mapped_column(JSONB)
 
     angle: Mapped[float] = mapped_column(Float, nullable=False)
     slope: Mapped[float] = mapped_column(Float, nullable=False)
