@@ -18,6 +18,7 @@ from services import (
     get_user_project,
     create_new_rooftop,
     get_projects_rooftops,
+    delete_user_project_rooftops,
 )
 
 projects_router = APIRouter(prefix="/projects", tags=["Projects"])
@@ -58,6 +59,17 @@ def delete_project(
     db: Session = Depends(get_db),
 ):
     return delete_user_project(project_id, db)
+
+
+@projects_router.delete(
+    "/{project_id}/rooftops", status_code=status.HTTP_204_NO_CONTENT
+)
+def delete_project_rooftops(
+    project_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return delete_user_project_rooftops(project_id, db)
 
 
 @projects_router.get("/{project_id}/rooftops", response_model=list[ProjectRooftop])

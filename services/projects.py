@@ -52,6 +52,20 @@ def update_user_project(
     return project
 
 
+def delete_user_project_rooftops(project_id: uuid.UUID, db: Session):
+    project = db.query(Project).filter((Project.id) == project_id).first()
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Project with id {project_id} not found.",
+        )
+
+    for rooftop in project.rooftops:
+        db.delete(rooftop)
+    db.commit()
+    return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
+
+
 def delete_user_project(project_id: uuid.UUID, db: Session):
     project = db.query(Project).filter(Project.id == project_id).first()
     if not project:

@@ -4,6 +4,7 @@ from .projects import (  # noqa
     create_new_user_project,
     update_user_project,
     delete_user_project,
+    delete_user_project_rooftops,
 )
 from .rooftops import (  # noqa
     get_projects_rooftops,
