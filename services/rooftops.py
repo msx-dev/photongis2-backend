@@ -68,7 +68,7 @@ def create_new_rooftop(
     # Extract lat, lon from initial polygon
     try:
         first_point = new_rooftop.initial_polygon[0]
-        lon, lat = first_point[0], first_point[1]
+        lon, lat = first_point[1], first_point[0]
 
     except Exception:
         raise HTTPException(
@@ -137,6 +137,7 @@ def fetch_pvcalc_data(lat: float, lon: float, angle: float, slope: float) -> dic
         "loss": 16,
         "outputformat": "json",
     }
+    print(params)
 
     url = "https://re.jrc.ec.europa.eu/api/v5_2/pvcalc"
 
