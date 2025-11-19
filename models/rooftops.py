@@ -1,9 +1,11 @@
+from datetime import datetime
 import uuid
 from sqlalchemy.dialects.postgresql import UUID
 from database import Base
-from sqlalchemy import ForeignKey, Float, Integer
+from sqlalchemy import ForeignKey, Float, Integer, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy.sql import func
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
@@ -22,6 +24,8 @@ class Rooftop(Base):
     panel_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("panels.id", ondelete="CASCADE")
     )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     additional_panels: Mapped[dict] = mapped_column(JSONB)
     initial_polygon: Mapped[list] = mapped_column(JSONB, nullable=False)

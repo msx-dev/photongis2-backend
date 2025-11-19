@@ -7,7 +7,12 @@ from schemas import PanelCreate, UserPanel
 
 
 def get_user_panels(user: User, db: Session) -> list[Panel]:
-    panels = db.query(Panel).filter((Panel.owner_id) == user.id).all()
+    panels = (
+        db.query(Panel)
+        .filter((Panel.owner_id) == user.id)
+        .order_by(Panel.created_at.asc())
+        .all()
+    )
     return panels
 
 

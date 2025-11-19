@@ -7,7 +7,12 @@ from fastapi import HTTPException, status, responses
 
 
 def get_user_project(user: User, db: Session) -> list[Project]:
-    projects = db.query(Project).filter((Project.owner_id) == user.id).all()
+    projects = (
+        db.query(Project)
+        .filter((Project.owner_id) == user.id)
+        .order_by(Project.created_at.asc())
+        .all()
+    )
     return projects
 
 

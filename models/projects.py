@@ -1,9 +1,11 @@
 from database import Base
-from sqlalchemy import String, ForeignKey
+from sqlalchemy import String, ForeignKey, DateTime
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
 import uuid
+from datetime import datetime
+from sqlalchemy.sql import func
 
 if TYPE_CHECKING:
     from models import Rooftop, User
@@ -19,6 +21,8 @@ class Project(Base):
     owner_id: Mapped[uuid.UUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("users.id", ondelete="CASCADE")
     )
+
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=func.now())
 
     name: Mapped[str] = mapped_column(String(50), nullable=True)
 

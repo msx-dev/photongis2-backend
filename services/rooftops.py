@@ -15,7 +15,12 @@ def get_projects_rooftops(project_id: uuid.UUID, db: Session):
             detail=f"Can't find project with id '{project_id}'.",
         )
 
-    rooftops = db.query(Rooftop).filter(Rooftop.project_id == project_id).all()
+    rooftops = (
+        db.query(Rooftop)
+        .filter(Rooftop.project_id == project_id)
+        .order_by(Rooftop.created_at.asc())
+        .all()
+    )
 
     response = []
 
