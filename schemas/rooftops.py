@@ -1,5 +1,5 @@
 from pydantic import BaseModel
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 import uuid
 
 
@@ -36,7 +36,9 @@ class RooftopCreate(BaseModel):
 
 
 class RooftopUpdate(BaseModel):
-    polygon: Optional[list[list[float]]]
-    angle: Optional[float]
-    slope: Optional[float]
-    spacing: Optional[int]
+    additional_panels: Optional[Dict[str, Panel]] = None
+    initial_polygon: Optional[List[List[float]]] = None
+    transformed_additional_panels: Optional[Dict[str, Panel]] = None
+    spacing: Optional[int] = None
+    angle: Optional[float] = None
+    slope: Optional[float] = None
