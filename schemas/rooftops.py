@@ -25,6 +25,19 @@ class ProjectRooftop(BaseModel):
     name: str
 
 
+class RooftopUpdateResponse(BaseModel):
+    id: uuid.UUID
+    project_id: uuid.UUID
+    panel_id: uuid.UUID
+    additional_panels: Dict[str, Panel]
+    initial_polygon: List[List[float]]
+    transformed_additional_panels: Dict[str, Panel]
+    spacing: int
+    angle: float
+    slope: float
+    solar_production: Optional[dict] = None
+
+
 class RooftopCreate(BaseModel):
     additional_panels: Dict[str, Panel]
     initial_polygon: list[list[float]]

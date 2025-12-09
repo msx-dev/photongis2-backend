@@ -7,5 +7,11 @@ from .users import (  # noqa
     Token,
 )
 from .projects import UserProject, ProjectCreate, ProjectUpdate  # noqa
-from .rooftops import ProjectRooftop, RooftopCreate, RooftopUpdate, Panel  # noqa
+from .rooftops import (  # noqa
+    ProjectRooftop,
+    RooftopCreate,
+    RooftopUpdate,
+    RooftopUpdateResponse,
+    Panel,
+)
 from .panels import PanelCreate, UserPanel  # noqa

@@ -2,6 +2,7 @@ from sqlalchemy.orm import Session
 from models import Rooftop, Project, Panel
 from schemas import RooftopCreate, ProjectRooftop, RooftopUpdate
 from fastapi import HTTPException, status, responses
+from schemas.rooftops import RooftopUpdateResponse
 from utils import transform_pvcalc_data
 import uuid
 import requests
@@ -103,7 +104,7 @@ def create_new_rooftop(
 
 def update_project_rooftop(
     rooftop_id: uuid.UUID, rooftop_data: RooftopUpdate, db: Session
-) -> ProjectRooftop:
+) -> RooftopUpdateResponse:
     rooftop = db.query(Rooftop).filter(Rooftop.id == rooftop_id).first()
     if not rooftop:
         raise HTTPException(

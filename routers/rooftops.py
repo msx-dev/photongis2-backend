@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, status
 from models import User
 from sqlalchemy.orm import Session
+from schemas.rooftops import RooftopUpdateResponse
 from services import get_current_user
 from database import get_db
-from schemas import ProjectRooftop, RooftopUpdate
+from schemas import RooftopUpdate
 import uuid
 from services import update_project_rooftop, delete_project_rooftop
 
@@ -12,7 +13,9 @@ rooftops_router = APIRouter(prefix="/rooftops", tags=["Rooftops"])
 
 
 @rooftops_router.patch(
-    "/{rooftop_id}", response_model=ProjectRooftop, status_code=status.HTTP_200_OK
+    "/{rooftop_id}",
+    response_model=RooftopUpdateResponse,
+    status_code=status.HTTP_200_OK,
 )
 def update_rooftop(
     rooftop_id: uuid.UUID,
