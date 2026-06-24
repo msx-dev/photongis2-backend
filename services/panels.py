@@ -22,8 +22,12 @@ def create_new_user_panel(
     db_panel = Panel(
         name=panel.name,
         height=panel.height,
-        width=panel.width,
+        width=panel.width,  
         power=panel.power,
+        vmp=panel.vmp,
+        voc=panel.voc,
+        imp=panel.imp,
+        isc=panel.isc,
         owner_id=current_user.id,
     )
     db.add(db_panel)

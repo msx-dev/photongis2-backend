@@ -1,5 +1,5 @@
 from database import Base
-from sqlalchemy import Integer, String, ForeignKey, DateTime
+from sqlalchemy import Integer, String, ForeignKey, DateTime, Float
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from typing import TYPE_CHECKING
@@ -28,6 +28,11 @@ class Panel(Base):
     width: Mapped[int] = mapped_column(Integer, nullable=False)
     height: Mapped[int] = mapped_column(Integer, nullable=False)
     power: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    vmp: Mapped[float] = mapped_column(Float, nullable=False)     # V
+    voc: Mapped[float] = mapped_column(Float, nullable=False)     # V
+    imp: Mapped[float] = mapped_column(Float, nullable=False)     # A
+    isc: Mapped[float] = mapped_column(Float, nullable=False)     # A 
 
     rooftops: Mapped[list["Rooftop"]] = relationship("Rooftop", back_populates="panel")
     owner: Mapped["User"] = relationship("User", back_populates="panels")

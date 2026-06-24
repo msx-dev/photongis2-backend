@@ -15,3 +15,5 @@ from .rooftops import (  # noqa
     Panel,
 )
 from .panels import PanelCreate, UserPanel  # noqa
+
+from .inverters import UserInverter, InverterCreate  # noqa

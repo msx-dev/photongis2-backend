@@ -14,3 +14,5 @@ from .rooftops import (  # noqa
 )
 
 from .panels import get_user_panels, create_new_user_panel, delete_user_panel  # noqa
+
+from .inverters import get_user_inverters, create_new_user_inverter, delete_user_inverter  # noqa
