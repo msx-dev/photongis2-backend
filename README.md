@@ -11,4 +11,5 @@ JWT_SECRET=
 
 4. run the DB with docker
 
-5. run the backend inside the venv with uvicorn
+5. run the backend inside the venv with
+   python -m uvicorn main:app --reload (ensures it runs inside venv)
