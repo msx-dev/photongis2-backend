@@ -1,5 +1,5 @@
 import uuid
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from models import User
 from schemas import UserProject, ProjectCreate, ProjectUpdate
 from models import Project, ProjectInverter, ElectricalString
@@ -105,6 +105,16 @@ def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreat
 
     return inverter
 
+def get_project_inverters(project_id: uuid.UUID, db: Session):
+    return (
+        db.query(ProjectInverter)
+        .options(
+            joinedload(ProjectInverter.inverter),
+            joinedload(ProjectInverter.strings),
+        )
+        .filter(ProjectInverter.project_id == project_id)
+        .all()
+    )
 
 def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session):
     inverter = (

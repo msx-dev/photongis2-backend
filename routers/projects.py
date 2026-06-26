@@ -22,7 +22,7 @@ from services import (
     get_projects_rooftops,
     delete_user_project_rooftops,
 )
-from services.projects import add_string_to_inverter, create_project_inverter, delete_projects_inverter, delete_string_from_inverter
+from services.projects import add_string_to_inverter, create_project_inverter, delete_projects_inverter, delete_string_from_inverter, get_project_inverters
 
 projects_router = APIRouter(prefix="/projects", tags=["Projects"])
 
@@ -97,6 +97,16 @@ def create_project_rooftop(
 ):
     return create_new_rooftop(rooftop, project_id, db)
 
+@projects_router.get(
+    "/{project_id}/inverters",
+    response_model=list[ProjectInverter],
+)
+def get_project_inverters_endpoint(
+    project_id: uuid.UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db),
+):
+    return get_project_inverters(project_id, db)
 
 @projects_router.post(
     "/{project_id}/inverters",
