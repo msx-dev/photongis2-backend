@@ -95,6 +95,7 @@ def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreat
 
     first_string = ElectricalString(
         project_inverter_id=inverter.id,
+        mppt=payload.electrical_string.mppt,
         design_lines=payload.electrical_string.design_lines,
         connected_polygons=payload.electrical_string.connected_polygons,
     )
@@ -136,6 +137,7 @@ def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session):
 def add_string_to_inverter(project_inverter_id: uuid.UUID, payload: ElectricalStringCreate, db: Session):
     string = ElectricalString(
         project_inverter_id=project_inverter_id,
+        mppt=payload.mppt,
         design_lines=payload.design_lines,
         connected_polygons=payload.connected_polygons,
     )
