@@ -2,8 +2,11 @@ import uuid
 from sqlalchemy.orm import Session
 from models import User
 from schemas import UserProject, ProjectCreate, ProjectUpdate
-from models import Project
+from models import Project, ProjectInverter, ElectricalString
 from fastapi import HTTPException, status, responses
+
+from schemas.electrical_string import ElectricalStringCreate
+from schemas.project_inverter import ProjectInverterCreate
 
 
 def get_user_project(user: User, db: Session) -> list[Project]:
@@ -81,3 +84,65 @@ def delete_user_project(project_id: uuid.UUID, db: Session):
     db.delete(project)
     db.commit()
     return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
+
+def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreate, db: Session):
+    inverter = ProjectInverter(
+        project_id=project_id,
+        inverter_id=payload.inverter_id,
+    )
+    db.add(inverter)
+    db.flush()  # get inverter.id without commit
+
+    first_string = ElectricalString(
+        project_inverter_id=inverter.id,
+        design_lines=payload.electrical_string.design_lines,
+        connected_polygons=payload.electrical_string.connected_polygons,
+    )
+
+    db.add(first_string)
+    db.commit()
+    db.refresh(inverter)
+
+    return inverter
+
+
+def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session):
+    inverter = (
+        db.query(ProjectInverter)
+        .filter(
+            ProjectInverter.id == project_inverter_id
+        )
+        .first()
+    )
+
+    if not inverter:
+        raise HTTPException(status_code=404, detail="Project inverter not found")
+
+    db.delete(inverter)
+    db.commit()
+
+    return None
+
+def add_string_to_inverter(project_inverter_id: uuid.UUID, payload: ElectricalStringCreate, db: Session):
+    string = ElectricalString(
+        project_inverter_id=project_inverter_id,
+        design_lines=payload.design_lines,
+        connected_polygons=payload.connected_polygons,
+    )
+
+    db.add(string)
+    db.commit()
+    db.refresh(string)
+
+    return string
+
+def delete_string_from_inverter(string_id: uuid.UUID, db: Session):
+    string = db.query(ElectricalString).filter(ElectricalString.id == string_id).first()
+
+    if not string:
+        raise HTTPException(status_code=404, detail="Electrical string not found")
+
+    db.delete(string)
+    db.commit()
+
+    return None

@@ -17,3 +17,7 @@ from .rooftops import (  # noqa
 from .panels import PanelCreate, UserPanel  # noqa
 
 from .inverters import UserInverter, InverterCreate  # noqa
+
+from .electrical_string import ElectricalString, ElectricalStringCreate  # noqa
+
+from .project_inverter import ProjectInverter, ProjectInverterCreate  # noqa
