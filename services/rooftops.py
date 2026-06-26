@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from models import Rooftop, Project, Panel
-from schemas import RooftopCreate, ProjectRooftop, RooftopUpdate
+from schemas import RooftopCreate, ProjectRooftop, RooftopUpdate,RooftopUpdateResponse
 from fastapi import HTTPException, status, responses
-from schemas.rooftops import RooftopUpdateResponse
+from models import ElectricalString
 from utils import transform_pvcalc_data
 import uuid
 import requests
@@ -128,8 +128,22 @@ def delete_project_rooftop(rooftop_id: uuid.UUID, db: Session):
             detail="Can't find this rooftop.",
         )
 
+    rooftop_prefix = str(rooftop_id)
+
+    # Manually remove electrical strings that reference this rooftop - TODO: Consider using a more efficient query to delete related strings in bulk.
+    electrical_strings = db.query(ElectricalString).all()
+
+    for electrical_string in electrical_strings:
+        if any(
+            polygon.startswith(rooftop_prefix)
+            for polygon in electrical_string.connected_polygons
+        ):
+
+            db.delete(electrical_string)
+
     db.delete(rooftop)
     db.commit()
+
     return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
