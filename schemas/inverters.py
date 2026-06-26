@@ -15,7 +15,7 @@ class UserInverter(BaseModel):
     max_current_per_mppt: Annotated[float | None, Field(ge=0)] = None
     mppt_count: Annotated[int | None, Field(gt=0)] = None
     max_strings_per_mppt: Annotated[int | None, Field(gt=0)] = None
-    efficiency: Annotated[float | None, Field(gt=0, lt=1)] = None
+    efficiency: Annotated[float | None, Field(gt=0, le=1)] = None
 
 
 
@@ -30,4 +30,4 @@ class InverterCreate(BaseModel):
     max_current_per_mppt: Annotated[float | None, Field(ge=0)] = None
     mppt_count: Annotated[int | None, Field(gt=0)] = None
     max_strings_per_mppt: Annotated[int | None, Field(gt=0)] = None
-    efficiency: Annotated[float | None, Field(gt=0, lt=1)] = None
+    efficiency: Annotated[float | None, Field(gt=0, le=1)] = None
