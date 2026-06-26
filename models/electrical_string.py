@@ -1,6 +1,6 @@
 import uuid
 
-from sqlalchemy import ForeignKey, DateTime
+from sqlalchemy import ForeignKey, DateTime, Integer
 from sqlalchemy.dialects.postgresql import UUID, JSONB
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from sqlalchemy.sql import func
@@ -28,6 +28,8 @@ class ElectricalString(Base):
         ForeignKey("project_inverters.id", ondelete="CASCADE"),
         nullable=False,
     )
+    
+    mppt: Mapped[int] = mapped_column(Integer, nullable=False) 
 
     # [[[lat, lng], [lat, lng], ...], ...]
     design_lines: Mapped[list] = mapped_column(
