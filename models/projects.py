@@ -8,7 +8,7 @@ from datetime import datetime
 from sqlalchemy.sql import func
 
 if TYPE_CHECKING:
-    from models import Rooftop, User
+    from models import Rooftop, User, ProjectInverter
 
 
 class Project(Base):
@@ -28,6 +28,12 @@ class Project(Base):
 
     rooftops: Mapped[list["Rooftop"]] = relationship(
         "Rooftop", back_populates="project", cascade="all, delete-orphan"
+    )
+
+    project_inverters: Mapped[list["ProjectInverter"]] = relationship(
+        "ProjectInverter",
+        back_populates="project",
+        cascade="all, delete-orphan",
     )
 
     owner: Mapped["User"] = relationship("User", back_populates="projects")

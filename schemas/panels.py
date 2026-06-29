@@ -9,6 +9,10 @@ class UserPanel(BaseModel):
     height: Annotated[int, Field(ge=0)]
     width: Annotated[int, Field(ge=0)]
     power: Annotated[int, Field(ge=0)]
+    vmp: Annotated[float, Field(ge=0)]
+    voc: Annotated[float, Field(ge=0)]
+    imp: Annotated[float, Field(ge=0)]
+    isc: Annotated[float, Field(ge=0)]
 
 
 class PanelCreate(BaseModel):
@@ -16,3 +20,7 @@ class PanelCreate(BaseModel):
     height: Annotated[int, Field(ge=0)]
     width: Annotated[int, Field(ge=0)]
     power: Annotated[int, Field(ge=0)]
+    vmp: Annotated[float, Field(ge=0)]
+    voc: Annotated[float, Field(ge=0)]
+    imp: Annotated[float, Field(ge=0)]
+    isc: Annotated[float, Field(ge=0)]

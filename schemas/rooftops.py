@@ -23,6 +23,10 @@ class ProjectRooftop(BaseModel):
     height: int
     power: int
     name: str
+    vmp: float
+    voc: float
+    imp: float
+    isc: float
 
 
 class RooftopUpdateResponse(BaseModel):
