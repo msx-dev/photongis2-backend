@@ -36,6 +36,10 @@ def get_projects_rooftops(project_id: uuid.UUID, db: Session):
         r["height"] = panel.height
         r["power"] = panel.power
         r["name"] = panel.name
+        r["vmp"] = panel.vmp
+        r["voc"] = panel.voc
+        r["imp"] = panel.imp
+        r["isc"] = panel.isc
 
         response.append(r)
 
@@ -58,14 +62,9 @@ def create_new_rooftop(
     db.commit()
     db.refresh(new_rooftop)
 
-    # Fetch the associated panel to pull width, height, power, and name
+    # Fetch the associated panel
     panel = db.query(Panel).filter(Panel.id == new_rooftop.panel_id).first()
-    if panel:
-        new_rooftop.width = panel.width
-        new_rooftop.height = panel.height
-        new_rooftop.power = panel.power
-        new_rooftop.name = panel.name
-    else:
+    if not panel:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=f"Can't find panel with id '{new_rooftop.panel_id}'.",
@@ -99,7 +98,26 @@ def create_new_rooftop(
     db.commit()
     db.refresh(new_rooftop)
 
-    return new_rooftop
+    # Construct ProjectRooftop response with panel data
+    return ProjectRooftop(
+        id=new_rooftop.id,
+        project_id=new_rooftop.project_id,
+        additional_panels=new_rooftop.additional_panels,
+        initial_polygon=new_rooftop.initial_polygon,
+        transformed_additional_panels=new_rooftop.transformed_additional_panels,
+        angle=new_rooftop.angle,
+        slope=new_rooftop.slope,
+        solar_production=new_rooftop.solar_production,
+        spacing=new_rooftop.spacing,
+        width=panel.width,
+        height=panel.height,
+        power=panel.power,
+        name=panel.name,
+        vmp=panel.vmp,
+        voc=panel.voc,
+        imp=panel.imp,
+        isc=panel.isc,
+    )
 
 
 def update_project_rooftop(
