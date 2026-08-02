@@ -8,6 +8,7 @@ from routers import (
     rooftops_router,
     panels_router,
     inverters_router,
+    chat_router
 )
 from fastapi.middleware.cors import CORSMiddleware
 
@@ -26,6 +27,7 @@ app.include_router(projects_router)
 app.include_router(rooftops_router)
 app.include_router(panels_router)
 app.include_router(inverters_router)
+app.include_router(chat_router)
 
 origins = [
     "http://localhost:3000",  # DEV
