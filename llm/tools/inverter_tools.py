@@ -1,48 +1,76 @@
+from langchain.tools import ToolRuntime, tool
+
+from llm.context import AgentContext
+
 from services import get_user_inverters
 
-from langchain_core.tools import tool
+
+# ============================================================================
+# GET MY INVERTERS
+# ============================================================================
+#
+# This tool retrieves the inverters belonging to the CURRENT authenticated
+# user.
+#
+# LangChain automatically provides ToolRuntime when this tool is executed.
+#
+# ToolRuntime[AgentContext] tells Pylance:
+#
+#     runtime.context -> AgentContext
+#
+# Therefore:
+#
+#     runtime.context.user
+#     runtime.context.db
+#
+# are both correctly typed.
+#
+# The runtime parameter is NOT something the LLM supplies.
+# LangChain injects it automatically.
+# ============================================================================
 
 
-def create_inverter_tools(user, db):
+@tool
+def get_my_inverters(
+    runtime: ToolRuntime[AgentContext],
+) -> list[dict]:
     """
-    Create the LangChain tools that are available for this request.
-
-    `user` and `db` come from our FastAPI application.
-    They are NOT arguments that the LLM gets to choose.
-
-    This is important because we don't want the LLM
-    to provide things like user IDs or database sessions.
+    Get all solar inverters belonging to the current authenticated user.
     """
 
-    @tool
-    def get_my_inverters() -> list[dict]:
-        """
-        Get all inverters belonging to the current user.
+    # ------------------------------------------------------------------------
+    # Get request-specific context.
+    # ------------------------------------------------------------------------
 
-        Use this tool whenever the user asks about their
-        inverters or needs information about their inverters.
-        """
+    user = runtime.context.user
+    db = runtime.context.db
 
-        # Get the current user's inverters from our database.
-        inverters = get_user_inverters(
-            user=user,
-            db=db,
-        )
 
-        # Convert SQLAlchemy objects into plain dictionaries
-        # that can safely be returned to the LLM.
-        return [
-            {
-                "id": str(inverter.id),
-                "name": inverter.name,
-                "max_ac_power": inverter.max_ac_power,
-                "max_dc_power": inverter.max_dc_power,
-                "efficiency": inverter.efficiency,
-            }
-            for inverter in inverters
-        ]
+    # ------------------------------------------------------------------------
+    # Use your existing application service.
+    #
+    # The service remains responsible for database access.
+    # ------------------------------------------------------------------------
 
-    # Return the tools available to this particular request.
+    inverters = get_user_inverters(
+        user=user,
+        db=db,
+    )
+
+
+    # ------------------------------------------------------------------------
+    # Convert SQLAlchemy models into plain dictionaries.
+    #
+    # We should never send ORM objects directly to the LLM.
+    # ------------------------------------------------------------------------
+
     return [
-        get_my_inverters,
+        {
+            "id": str(inverter.id),
+            "name": inverter.name,
+            "max_ac_power": inverter.max_ac_power,
+            "max_dc_power": inverter.max_dc_power,
+            "efficiency": inverter.efficiency,
+        }
+        for inverter in inverters
     ]
