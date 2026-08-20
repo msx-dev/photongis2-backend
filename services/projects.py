@@ -19,6 +19,26 @@ def get_user_project(user: User, db: Session) -> list[Project]:
     return projects
 
 
+def get_user_project_by_id(
+    project_id: uuid.UUID,
+    user: User,
+    db: Session,
+) -> Project:
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == user.id)
+        .first()
+    )
+
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Can't find project with id '{project_id}'.",
+        )
+
+    return project
+
+
 def create_new_user_project(
     project: ProjectCreate, db: Session, current_user: User
 ) -> UserProject:

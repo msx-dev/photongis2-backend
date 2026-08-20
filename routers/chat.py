@@ -1,3 +1,5 @@
+import uuid
+
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.responses import StreamingResponse
 
@@ -9,6 +11,7 @@ from llm.orchestrator import (
 )
 from models import User
 from services.auth import get_current_user
+from services import get_user_project_by_id
 
 
 chat_router = APIRouter(
@@ -24,6 +27,7 @@ chat_router = APIRouter(
 @chat_router.post("")
 def ask_ai(
     message: str,
+    project_id: uuid.UUID,
     current_user: User = Depends(
         get_current_user,
     ),
@@ -33,11 +37,18 @@ def ask_ai(
     Send a message and stream the assistant response.
     """
 
+    get_user_project_by_id(
+        project_id=project_id,
+        user=current_user,
+        db=db,
+    )
+
     return StreamingResponse(
         chat_stream(
             user_message=message,
             user=current_user,
             db=db,
+            project_id=project_id,
         ),
         media_type="text/plain",
     )
@@ -49,16 +60,25 @@ def ask_ai(
 
 @chat_router.get("/current")
 def get_current_conversation(
+    project_id: uuid.UUID,
     current_user: User = Depends(
         get_current_user,
     ),
+    db=Depends(get_db),
 ):
     """
-    Return the authenticated user's current conversation.
+    Return the authenticated user's current conversation for a project.
     """
+
+    get_user_project_by_id(
+        project_id=project_id,
+        user=current_user,
+        db=db,
+    )
 
     thread_id = get_current_thread_id(
         current_user,
+        project_id,
     )
 
     messages = get_conversation_messages_for_display(
@@ -67,6 +87,7 @@ def get_current_conversation(
 
     return {
         "thread_id": thread_id,
+        "project_id": str(project_id),
         "messages": messages,
     }
 
@@ -78,9 +99,11 @@ def get_current_conversation(
 @chat_router.get("/{thread_id}")
 def get_conversation(
     thread_id: str,
+    project_id: uuid.UUID,
     current_user: User = Depends(
         get_current_user,
     ),
+    db=Depends(get_db),
 ):
     """
     Return a specific conversation.
@@ -88,8 +111,15 @@ def get_conversation(
     Currently, the user may only access their current conversation.
     """
 
+    get_user_project_by_id(
+        project_id=project_id,
+        user=current_user,
+        db=db,
+    )
+
     current_thread_id = get_current_thread_id(
         current_user,
+        project_id,
     )
 
     # -------------------------------------------------------------------------
@@ -122,5 +152,6 @@ def get_conversation(
 
     return {
         "thread_id": thread_id,
+        "project_id": str(project_id),
         "messages": messages,
     }

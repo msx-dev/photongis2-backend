@@ -72,12 +72,24 @@ class ConversationManager:
         )
 
     # =========================================================================
+    # CONVERSATION KEY
+    # =========================================================================
+
+    @staticmethod
+    def _conversation_key(
+        user_id: str,
+        project_id: str,
+    ) -> str:
+        return f"{user_id}:{project_id}"
+
+    # =========================================================================
     # GET OR CREATE METADATA
     # =========================================================================
 
     def _get_or_create(
         self,
         user_id: str,
+        project_id: str,
     ) -> ConversationMetadata:
         """
         Get the current conversation metadata.
@@ -85,8 +97,13 @@ class ConversationManager:
         Creates generation 1 when the user has no conversation yet.
         """
 
-        metadata = self._conversations.get(
+        key = self._conversation_key(
             user_id,
+            project_id,
+        )
+
+        metadata = self._conversations.get(
+            key,
         )
 
         if metadata is not None:
@@ -98,7 +115,7 @@ class ConversationManager:
             last_activity=self._now(),
         )
 
-        self._conversations[user_id] = metadata
+        self._conversations[key] = metadata
 
         return metadata
 
@@ -109,6 +126,7 @@ class ConversationManager:
     @staticmethod
     def _thread_id(
         user_id: str,
+        project_id: str,
         generation: int,
     ) -> str:
         """
@@ -116,11 +134,11 @@ class ConversationManager:
 
         Example:
 
-            user:123:1
+            user:123:project:456:1
         """
 
         return (
-            f"user:{user_id}:{generation}"
+            f"user:{user_id}:project:{project_id}:{generation}"
         )
 
     # =========================================================================
@@ -130,9 +148,10 @@ class ConversationManager:
     def current_thread_id(
         self,
         user_id: str,
+        project_id: str,
     ) -> str:
         """
-        Return the user's current thread ID.
+        Return the user's current thread ID for a project.
 
         This does NOT create a new generation.
 
@@ -141,10 +160,12 @@ class ConversationManager:
 
         metadata = self._get_or_create(
             user_id,
+            project_id,
         )
 
         return self._thread_id(
             user_id=user_id,
+            project_id=project_id,
             generation=metadata.generation,
         )
 
@@ -204,6 +225,7 @@ class ConversationManager:
     def prepare(
         self,
         user_id: str,
+        project_id: str,
     ) -> str:
         """
         Prepare the conversation before processing a new user message.
@@ -211,6 +233,7 @@ class ConversationManager:
 
         metadata = self._get_or_create(
             user_id,
+            project_id,
         )
 
         # ---------------------------------------------------------------------
@@ -223,6 +246,7 @@ class ConversationManager:
 
             old_thread_id = self._thread_id(
                 user_id=user_id,
+                project_id=project_id,
                 generation=metadata.generation,
             )
 
@@ -238,13 +262,18 @@ class ConversationManager:
             # CREATE NEW GENERATION
             # -----------------------------------------------------------------
 
+            key = self._conversation_key(
+                user_id,
+                project_id,
+            )
+
             metadata = ConversationMetadata(
                 generation=metadata.generation + 1,
                 message_count=0,
                 last_activity=self._now(),
             )
 
-            self._conversations[user_id] = metadata
+            self._conversations[key] = metadata
 
         # ---------------------------------------------------------------------
         # RETURN CURRENT THREAD
@@ -252,6 +281,7 @@ class ConversationManager:
 
         return self._thread_id(
             user_id=user_id,
+            project_id=project_id,
             generation=metadata.generation,
         )
 
@@ -262,6 +292,7 @@ class ConversationManager:
     def record_message(
         self,
         user_id: str,
+        project_id: str,
     ) -> None:
         """
         Record one successfully processed user message.
@@ -269,6 +300,7 @@ class ConversationManager:
 
         metadata = self._get_or_create(
             user_id,
+            project_id,
         )
 
         metadata.message_count += 1

@@ -1,5 +1,6 @@
 from collections.abc import Iterator
 from typing import Any
+import uuid
 
 from langchain_core.messages import (
     AIMessage,
@@ -70,6 +71,7 @@ def chat_stream(
     user_message: str,
     user: Any,
     db: Any,
+    project_id: uuid.UUID,
 ) -> Iterator[str]:
     """
     Run the LangGraph agent and stream the assistant response.
@@ -86,6 +88,7 @@ def chat_stream(
 
     thread_id = conversation_manager.prepare(
         user_id=str(user.id),
+        project_id=str(project_id),
     )
 
     # ------------------------------------------------------------------------
@@ -105,6 +108,7 @@ def chat_stream(
     context = AgentContext(
         user=user,
         db=db,
+        project_id=project_id,
     )
 
     # ------------------------------------------------------------------------
@@ -149,6 +153,7 @@ def chat_stream(
 
     conversation_manager.record_message(
         user_id=str(user.id),
+        project_id=str(project_id),
     )
 
 
@@ -158,6 +163,7 @@ def chat_stream(
 
 def get_current_thread_id(
     user: Any,
+    project_id: uuid.UUID,
 ) -> str:
     """
     Return the authenticated user's current conversation thread ID.
@@ -165,6 +171,7 @@ def get_current_thread_id(
 
     return conversation_manager.current_thread_id(
         user_id=str(user.id),
+        project_id=str(project_id),
     )
 
 

@@ -1,6 +1,7 @@
 from .auth import create_user, authenticate_user, get_current_user  # noqa
 from .projects import (  # noqa
     get_user_project,
+    get_user_project_by_id,
     create_new_user_project,
     update_user_project,
     delete_user_project,

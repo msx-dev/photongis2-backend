@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+import uuid
 
 from sqlalchemy.orm import Session
 
@@ -18,3 +19,4 @@ from models import User
 class AgentContext:
     user: User
     db: Session
+    project_id: uuid.UUID
