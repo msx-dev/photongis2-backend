@@ -4,7 +4,7 @@ from fastapi.responses import StreamingResponse
 from database import get_db
 from llm.orchestrator import (
     chat_stream,
-    get_conversation_messages,
+    get_conversation_messages_for_display,
     get_current_thread_id,
 )
 from models import User
@@ -61,7 +61,7 @@ def get_current_conversation(
         current_user,
     )
 
-    messages = get_conversation_messages(
+    messages = get_conversation_messages_for_display(
         thread_id,
     )
 
@@ -106,7 +106,7 @@ def get_conversation(
     # GET MESSAGES
     # -------------------------------------------------------------------------
 
-    messages = get_conversation_messages(
+    messages = get_conversation_messages_for_display(
         thread_id,
     )
 

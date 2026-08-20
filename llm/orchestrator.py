@@ -1,7 +1,13 @@
 from collections.abc import Iterator
 from typing import Any
 
-from langchain_core.messages import BaseMessage
+from langchain_core.messages import (
+    AIMessage,
+    AIMessageChunk,
+    BaseMessage,
+    HumanMessage,
+    ToolMessage,
+)
 from langchain_core.runnables import RunnableConfig
 
 from llm.agent import agent, checkpointer
@@ -32,6 +38,28 @@ from llm.conversation import ConversationManager
 conversation_manager = ConversationManager(
     checkpointer=checkpointer,
 )
+
+
+def _extract_text_content(content: Any) -> str:
+    if isinstance(content, str):
+        return content
+
+    if isinstance(content, list):
+        parts: list[str] = []
+
+        for block in content:
+            if isinstance(block, str):
+                parts.append(block)
+                continue
+
+            if isinstance(block, dict) and block.get("type") == "text":
+                text = block.get("text")
+                if isinstance(text, str):
+                    parts.append(text)
+
+        return "".join(parts)
+
+    return ""
 
 
 # ============================================================================
@@ -104,17 +132,15 @@ def chat_stream(
         if not isinstance(chunk, BaseMessage):
             continue
 
-        # --------------------------------------------------------------------
-        # 6. EXTRACT CONTENT
-        # --------------------------------------------------------------------
+        if isinstance(chunk, ToolMessage):
+            continue
 
-        content = chunk.content
+        if not isinstance(chunk, (AIMessage, AIMessageChunk)):
+            continue
 
-        # --------------------------------------------------------------------
-        # 7. YIELD TEXT
-        # --------------------------------------------------------------------
+        content = _extract_text_content(chunk.content)
 
-        if isinstance(content, str) and content:
+        if content:
             yield content
 
     # ------------------------------------------------------------------------
@@ -170,3 +196,29 @@ def get_conversation_messages(
         "messages",
         [],
     )
+
+
+def get_conversation_messages_for_display(
+    thread_id: str,
+) -> list[dict[str, str]]:
+    """
+    Return only user-visible chat messages.
+
+    Tool messages and empty assistant tool-call messages are excluded.
+    """
+
+    display: list[dict[str, str]] = []
+
+    for message in get_conversation_messages(thread_id):
+        if isinstance(message, HumanMessage):
+            content = _extract_text_content(message.content)
+            if content.strip():
+                display.append({"type": "human", "content": content})
+            continue
+
+        if isinstance(message, AIMessage):
+            content = _extract_text_content(message.content)
+            if content.strip():
+                display.append({"type": "ai", "content": content})
+
+    return display
