@@ -1,8 +1,7 @@
-from sqlalchemy.orm import Session
+from collections.abc import Iterator
+from typing import Any
 
-from models import User
-
-from langchain_core.messages import HumanMessage
+from langchain_core.messages import BaseMessage
 from langchain_core.runnables import RunnableConfig
 
 from llm.agent import agent, checkpointer
@@ -10,77 +9,60 @@ from llm.context import AgentContext
 from llm.conversation import ConversationManager
 
 
-# =============================================================================
+# ============================================================================
 # CONVERSATION MANAGER
-# =============================================================================
+# ============================================================================
 #
-# ONE manager exists for the lifetime of this Python process.
+# IMPORTANT:
+# This uses the EXACT SAME checkpointer instance as the LangGraph agent.
 #
-# It manages:
+# llm.agent:
 #
-#     - 100-message limit
-#     - 30-minute inactivity timeout
-#     - deleting expired LangGraph threads
-#     - creating new conversation generations
+#     checkpointer = InMemorySaver()
 #
-# It uses the SAME checkpointer as the agent.
-# =============================================================================
-
+#     agent = create_agent(
+#         ...,
+#         checkpointer=checkpointer,
+#     )
+#
+# Therefore ConversationManager can delete the same threads that the agent
+# uses for its conversation state.
+# ============================================================================
 
 conversation_manager = ConversationManager(
     checkpointer=checkpointer,
 )
 
 
-# =============================================================================
-# CHAT
-# =============================================================================
+# ============================================================================
+# CHAT STREAM
+# ============================================================================
 
-
-def chat(
+def chat_stream(
     user_message: str,
-    user: User,
-    db: Session,
-) -> str:
+    user: Any,
+    db: Any,
+) -> Iterator[str]:
+    """
+    Run the LangGraph agent and stream the assistant response.
 
-    # =========================================================================
-    # 1. IDENTIFY USER
-    # =========================================================================
+    Conversation history is stored by LangGraph's checkpointer.
 
-    user_id = str(user.id)
+    Runtime dependencies such as the authenticated user and database session
+    are passed through AgentContext.
+    """
 
-
-    # =========================================================================
-    # 2. PREPARE CONVERSATION
-    # =========================================================================
-    #
-    # This checks:
-    #
-    #     - Have we reached 100 messages?
-    #     - Has the conversation been inactive for 30 minutes?
-    #
-    # If expired:
-    #
-    #     OLD THREAD
-    #          ↓
-    #     DELETE FROM CHECKPOINTER
-    #          ↓
-    #     NEW GENERATION
-    #
-    # Otherwise we continue the existing thread.
-    # =========================================================================
+    # ------------------------------------------------------------------------
+    # 1. PREPARE CONVERSATION
+    # ------------------------------------------------------------------------
 
     thread_id = conversation_manager.prepare(
-        user_id=user_id,
+        user_id=str(user.id),
     )
 
-
-    # =========================================================================
-    # 3. LANGGRAPH CONFIG
-    # =========================================================================
-    #
-    # thread_id tells LangGraph which conversation state belongs to this user.
-    # =========================================================================
+    # ------------------------------------------------------------------------
+    # 2. LANGGRAPH CONFIGURATION
+    # ------------------------------------------------------------------------
 
     config: RunnableConfig = {
         "configurable": {
@@ -88,82 +70,103 @@ def chat(
         }
     }
 
-
-    # =========================================================================
-    # 4. REQUEST CONTEXT
-    # =========================================================================
-    #
-    # This is request-specific information.
-    #
-    # Tools can access:
-    #
-    #     runtime.context.user
-    #     runtime.context.db
-    # =========================================================================
+    # ------------------------------------------------------------------------
+    # 3. REQUEST CONTEXT
+    # ------------------------------------------------------------------------
 
     context = AgentContext(
         user=user,
         db=db,
     )
 
+    # ------------------------------------------------------------------------
+    # 4. STREAM LANGGRAPH
+    # ------------------------------------------------------------------------
 
-    # =========================================================================
-    # 5. RUN AGENT
-    # =========================================================================
-    #
-    # LangGraph handles the complete agent loop:
-    #
-    #     user message
-    #          ↓
-    #        model
-    #          ↓
-    #     tool required?
-    #       /       \
-    #     yes        no
-    #      ↓          ↓
-    #    tool       answer
-    #      ↓
-    #    model
-    #      ↓
-    #    answer
-    #
-    # The resulting state is automatically saved by InMemorySaver.
-    # =========================================================================
-
-    result = agent.invoke(
+    for chunk, metadata in agent.stream(
         {
             "messages": [
-                HumanMessage(
-                    content=user_message,
-                )
+                {
+                    "role": "user",
+                    "content": user_message,
+                }
             ]
         },
         config=config,
         context=context,
-    )
+        stream_mode="messages",
+    ):
 
+        # --------------------------------------------------------------------
+        # 5. ONLY PROCESS LANGCHAIN MESSAGES
+        # --------------------------------------------------------------------
 
-    # =========================================================================
-    # 6. RECORD SUCCESSFUL USER MESSAGE
-    # =========================================================================
-    #
-    # Only record the message AFTER the agent successfully finished.
-    # =========================================================================
+        if not isinstance(chunk, BaseMessage):
+            continue
+
+        # --------------------------------------------------------------------
+        # 6. EXTRACT CONTENT
+        # --------------------------------------------------------------------
+
+        content = chunk.content
+
+        # --------------------------------------------------------------------
+        # 7. YIELD TEXT
+        # --------------------------------------------------------------------
+
+        if isinstance(content, str) and content:
+            yield content
+
+    # ------------------------------------------------------------------------
+    # 8. RECORD SUCCESSFUL MESSAGE
+    # ------------------------------------------------------------------------
 
     conversation_manager.record_message(
-        user_id=user_id,
+        user_id=str(user.id),
     )
 
 
-    # =========================================================================
-    # 7. GET FINAL MESSAGE
-    # =========================================================================
+# ============================================================================
+# GET CURRENT THREAD ID
+# ============================================================================
 
-    final_message = result["messages"][-1]
+def get_current_thread_id(
+    user: Any,
+) -> str:
+    """
+    Return the authenticated user's current conversation thread ID.
+    """
+
+    return conversation_manager.current_thread_id(
+        user_id=str(user.id),
+    )
 
 
-    # =========================================================================
-    # 8. RETURN TO FASTAPI
-    # =========================================================================
+# ============================================================================
+# GET CONVERSATION STATE
+# ============================================================================
 
-    return final_message.content
+
+def get_conversation_messages(
+    thread_id: str,
+) -> list[BaseMessage]:
+    """
+    Get the messages stored in the LangGraph checkpoint
+    for the given conversation.
+    """
+
+    config: RunnableConfig = {
+        "configurable": {
+            "thread_id": thread_id,
+        }
+    }
+
+    checkpoint = checkpointer.get(config)
+
+    if checkpoint is None:
+        return []
+
+    return checkpoint["channel_values"].get(
+        "messages",
+        [],
+    )
