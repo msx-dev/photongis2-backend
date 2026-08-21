@@ -19,11 +19,6 @@ chat_router = APIRouter(
     tags=["Chat"],
 )
 
-
-# =============================================================================
-# STREAM CHAT
-# =============================================================================
-
 @chat_router.post("")
 def ask_ai(
     message: str,
@@ -53,11 +48,6 @@ def ask_ai(
         media_type="text/plain",
     )
 
-
-# =============================================================================
-# GET CURRENT CONVERSATION
-# =============================================================================
-
 @chat_router.get("/current")
 def get_current_conversation(
     project_id: uuid.UUID,
@@ -66,10 +56,6 @@ def get_current_conversation(
     ),
     db=Depends(get_db),
 ):
-    """
-    Return the authenticated user's current conversation for a project.
-    """
-
     get_user_project_by_id(
         project_id=project_id,
         user=current_user,
@@ -91,11 +77,6 @@ def get_current_conversation(
         "messages": messages,
     }
 
-
-# =============================================================================
-# GET SPECIFIC CONVERSATION
-# =============================================================================
-
 @chat_router.get("/{thread_id}")
 def get_conversation(
     thread_id: str,
@@ -105,12 +86,6 @@ def get_conversation(
     ),
     db=Depends(get_db),
 ):
-    """
-    Return a specific conversation.
-
-    Currently, the user may only access their current conversation.
-    """
-
     get_user_project_by_id(
         project_id=project_id,
         user=current_user,

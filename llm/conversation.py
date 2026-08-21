@@ -3,48 +3,19 @@ from datetime import datetime, timedelta, timezone
 
 from langgraph.checkpoint.memory import InMemorySaver
 
-
-# =============================================================================
-# CONVERSATION LIMITS
-# =============================================================================
-
 MAX_MESSAGES = 100
 
 INACTIVITY_TIMEOUT = timedelta(
     minutes=30,
 )
 
-
-# =============================================================================
-# CONVERSATION METADATA
-# =============================================================================
-
 @dataclass
 class ConversationMetadata:
-    """
-    Metadata about a user's current conversation.
-
-    This does NOT contain conversation messages.
-
-    LangGraph's checkpointer stores the actual conversation state.
-    """
-
     generation: int
-
     message_count: int
-
     last_activity: datetime
 
-
-# =============================================================================
-# CONVERSATION MANAGER
-# =============================================================================
-
 class ConversationManager:
-    """
-    Manages the lifecycle of temporary LangGraph conversations.
-    """
-
     def __init__(
         self,
         checkpointer: InMemorySaver,
@@ -57,10 +28,6 @@ class ConversationManager:
             ConversationMetadata,
         ] = {}
 
-    # =========================================================================
-    # CURRENT TIME
-    # =========================================================================
-
     @staticmethod
     def _now() -> datetime:
         """
@@ -71,10 +38,6 @@ class ConversationManager:
             timezone.utc,
         )
 
-    # =========================================================================
-    # CONVERSATION KEY
-    # =========================================================================
-
     @staticmethod
     def _conversation_key(
         user_id: str,
@@ -82,21 +45,11 @@ class ConversationManager:
     ) -> str:
         return f"{user_id}:{project_id}"
 
-    # =========================================================================
-    # GET OR CREATE METADATA
-    # =========================================================================
-
     def _get_or_create(
         self,
         user_id: str,
         project_id: str,
     ) -> ConversationMetadata:
-        """
-        Get the current conversation metadata.
-
-        Creates generation 1 when the user has no conversation yet.
-        """
-
         key = self._conversation_key(
             user_id,
             project_id,
@@ -119,45 +72,21 @@ class ConversationManager:
 
         return metadata
 
-    # =========================================================================
-    # BUILD THREAD ID
-    # =========================================================================
-
     @staticmethod
     def _thread_id(
         user_id: str,
         project_id: str,
         generation: int,
     ) -> str:
-        """
-        Build the LangGraph thread ID.
-
-        Example:
-
-            user:123:project:456:1
-        """
-
         return (
             f"user:{user_id}:project:{project_id}:{generation}"
         )
-
-    # =========================================================================
-    # CURRENT THREAD ID
-    # =========================================================================
 
     def current_thread_id(
         self,
         user_id: str,
         project_id: str,
     ) -> str:
-        """
-        Return the user's current thread ID for a project.
-
-        This does NOT create a new generation.
-
-        If the user has never had a conversation, generation 1 is created.
-        """
-
         metadata = self._get_or_create(
             user_id,
             project_id,
@@ -169,28 +98,12 @@ class ConversationManager:
             generation=metadata.generation,
         )
 
-    # =========================================================================
-    # CHECK EXPIRATION
-    # =========================================================================
-
     def _is_expired(
         self,
         metadata: ConversationMetadata,
     ) -> bool:
-        """
-        Determine whether the current conversation has expired.
-        """
-
-        # ---------------------------------------------------------------------
-        # MESSAGE LIMIT
-        # ---------------------------------------------------------------------
-
         if metadata.message_count >= MAX_MESSAGES:
             return True
-
-        # ---------------------------------------------------------------------
-        # INACTIVITY LIMIT
-        # ---------------------------------------------------------------------
 
         inactive_for = (
             self._now()
@@ -202,44 +115,23 @@ class ConversationManager:
 
         return False
 
-    # =========================================================================
-    # DELETE THREAD
-    # =========================================================================
-
     def _delete_thread(
         self,
         thread_id: str,
     ) -> None:
-        """
-        Delete a LangGraph conversation.
-        """
-
         self.checkpointer.delete_thread(
             thread_id,
         )
-
-    # =========================================================================
-    # PREPARE
-    # =========================================================================
 
     def prepare(
         self,
         user_id: str,
         project_id: str,
     ) -> str:
-        """
-        Prepare the conversation before processing a new user message.
-        """
-
         metadata = self._get_or_create(
             user_id,
             project_id,
         )
-
-        # ---------------------------------------------------------------------
-        # CHECK EXPIRATION
-        # ---------------------------------------------------------------------
-
         if self._is_expired(
             metadata,
         ):
@@ -250,17 +142,9 @@ class ConversationManager:
                 generation=metadata.generation,
             )
 
-            # -----------------------------------------------------------------
-            # DELETE OLD LANGGRAPH THREAD
-            # -----------------------------------------------------------------
-
             self._delete_thread(
                 old_thread_id,
             )
-
-            # -----------------------------------------------------------------
-            # CREATE NEW GENERATION
-            # -----------------------------------------------------------------
 
             key = self._conversation_key(
                 user_id,
@@ -275,29 +159,17 @@ class ConversationManager:
 
             self._conversations[key] = metadata
 
-        # ---------------------------------------------------------------------
-        # RETURN CURRENT THREAD
-        # ---------------------------------------------------------------------
-
         return self._thread_id(
             user_id=user_id,
             project_id=project_id,
             generation=metadata.generation,
         )
 
-    # =========================================================================
-    # RECORD MESSAGE
-    # =========================================================================
-
     def record_message(
         self,
         user_id: str,
         project_id: str,
     ) -> None:
-        """
-        Record one successfully processed user message.
-        """
-
         metadata = self._get_or_create(
             user_id,
             project_id,

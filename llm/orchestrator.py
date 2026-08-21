@@ -15,27 +15,7 @@ from llm.agent import agent, checkpointer
 from llm.context import AgentContext
 from llm.conversation import ConversationManager
 
-
-# ============================================================================
-# CONVERSATION MANAGER
-# ============================================================================
-#
-# IMPORTANT:
-# This uses the EXACT SAME checkpointer instance as the LangGraph agent.
-#
-# llm.agent:
-#
-#     checkpointer = InMemorySaver()
-#
-#     agent = create_agent(
-#         ...,
-#         checkpointer=checkpointer,
-#     )
-#
-# Therefore ConversationManager can delete the same threads that the agent
-# uses for its conversation state.
-# ============================================================================
-
+#Internal custom conversation manager
 conversation_manager = ConversationManager(
     checkpointer=checkpointer,
 )
@@ -61,11 +41,6 @@ def _extract_text_content(content: Any) -> str:
         return "".join(parts)
 
     return ""
-
-
-# ============================================================================
-# CHAT STREAM
-# ============================================================================
 
 def chat_stream(
     user_message: str,
