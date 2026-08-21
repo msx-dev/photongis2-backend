@@ -11,12 +11,14 @@ from routers import (
     chat_router
 )
 from fastapi.middleware.cors import CORSMiddleware
+from llm.rag.ingestion.indexer import index_manual
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     # Initialize DB at start
     create_tables()
+    index_manual()
     yield
 
 

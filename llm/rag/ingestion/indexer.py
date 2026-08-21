@@ -10,9 +10,32 @@ def index_manual() -> None:
     """
     Load the application manual, split it into chunks,
     and store the chunks in Chroma.
+
+    If the manual is already indexed, skip indexing.
     """
 
-    # 1. Make sure the PDF exists
+    # ------------------------------------------------------------------
+    # 1. Get the Chroma collection
+    # ------------------------------------------------------------------
+
+    collection = get_manual_collection()
+
+    # ------------------------------------------------------------------
+    # 2. Check whether the manual is already indexed
+    # ------------------------------------------------------------------
+
+    existing_count = collection.count()
+
+    if existing_count > 0:
+        print(
+            f"Manual already indexed ({existing_count} chunks)."
+        )
+        return
+
+    # ------------------------------------------------------------------
+    # 3. Make sure the PDF exists
+    # ------------------------------------------------------------------
+
     manual_path = Path(MANUAL_PATH)
 
     if not manual_path.exists():
@@ -20,20 +43,26 @@ def index_manual() -> None:
             f"Manual not found: {manual_path}"
         )
 
-    # 2. Load the PDF
+    # ------------------------------------------------------------------
+    # 4. Load the PDF
+    # ------------------------------------------------------------------
+
     documents = load_manual()
 
     print(f"Loaded {len(documents)} pages.")
 
-    # 3. Split pages into chunks
+    # ------------------------------------------------------------------
+    # 5. Split pages into chunks
+    # ------------------------------------------------------------------
+
     chunks = chunk_documents(documents)
 
     print(f"Created {len(chunks)} chunks.")
 
-    # 4. Get our persistent Chroma collection
-    collection = get_manual_collection()
+    # ------------------------------------------------------------------
+    # 6. Add chunks to Chroma
+    # ------------------------------------------------------------------
 
-    # 5. Add chunks to Chroma
     collection.add(
         ids=[
             f"manual-chunk-{index}"
@@ -49,4 +78,6 @@ def index_manual() -> None:
         ],
     )
 
-    print(f"Stored {len(chunks)} chunks in Chroma.")
+    print(
+        f"Stored {len(chunks)} chunks in Chroma."
+    )
