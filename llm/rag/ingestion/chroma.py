@@ -21,12 +21,15 @@ from llm.rag.config import (
 # EMBEDDING FUNCTION
 # ---------------------------------------------------------------------------
 
-embedding_function = cast(
-    EmbeddingFunction[Embeddable],
-    SentenceTransformerEmbeddingFunction(
-        model_name="all-MiniLM-L6-v2",
-    ),
-)
+
+#For now we will comment out the embedding function and use the default
+#when changing embedding function, you must re-index (delete chroma_data and run test_indexer)
+# embedding_function = cast(
+#     EmbeddingFunction[Embeddable],
+#     SentenceTransformerEmbeddingFunction(
+#         model_name="all-MiniLM-L6-v2",
+#     ),
+# )
 
 
 # ---------------------------------------------------------------------------
@@ -56,7 +59,7 @@ def get_manual_collection():
 
     return client.get_or_create_collection(
         name=MANUAL_COLLECTION_NAME,
-        embedding_function=embedding_function,
+        #embedding_function=embedding_function,
     )
 
 
@@ -80,5 +83,5 @@ def reset_manual_collection():
 
     return client.get_or_create_collection(
         name=MANUAL_COLLECTION_NAME,
-        embedding_function=embedding_function,
+        #embedding_function=embedding_function,
     )
