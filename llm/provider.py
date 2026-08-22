@@ -23,7 +23,7 @@ if not api_key:
 # LangChain's ChatOpenAI integration can communicate
 # with OpenAI-compatible APIs such as OpenRouter.
 model = ChatOpenAI(
-    model="openai/gpt-oss-20b:free",
+    model="nvidia/nemotron-3-ultra-550b-a55b:free",
     api_key=SecretStr(api_key),
     base_url="https://openrouter.ai/api/v1",
 )
