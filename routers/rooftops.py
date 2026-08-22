@@ -23,7 +23,7 @@ def update_rooftop(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return update_project_rooftop(rooftop_id, rooftop, db)
+    return update_project_rooftop(rooftop_id, rooftop, db, current_user)
 
 
 @rooftops_router.delete(
@@ -35,4 +35,4 @@ def delete_rooftop(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_project_rooftop(rooftop_id, db)
+    return delete_project_rooftop(rooftop_id, db, current_user)

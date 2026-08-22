@@ -52,7 +52,7 @@ def update_project(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return update_user_project(project_id, project, db)
+    return update_user_project(project_id, project, db, current_user)
 
 
 @projects_router.delete("/{project_id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -61,7 +61,7 @@ def delete_project(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_user_project(project_id, db)
+    return delete_user_project(project_id, db, current_user)
 
 
 @projects_router.delete(
@@ -72,7 +72,7 @@ def delete_project_rooftops(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_user_project_rooftops(project_id, db)
+    return delete_user_project_rooftops(project_id, db, current_user)
 
 
 @projects_router.get("/{project_id}/rooftops", response_model=list[ProjectRooftop])
@@ -81,7 +81,7 @@ def get_project_rooftops(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_projects_rooftops(project_id, db)
+    return get_projects_rooftops(project_id, db, current_user)
 
 
 @projects_router.post(
@@ -95,7 +95,7 @@ def create_project_rooftop(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return create_new_rooftop(rooftop, project_id, db)
+    return create_new_rooftop(rooftop, project_id, db, current_user)
 
 @projects_router.get(
     "/{project_id}/inverters",
@@ -106,7 +106,7 @@ def get_project_inverters_endpoint(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return get_project_inverters(project_id, db)
+    return get_project_inverters(project_id, db, current_user)
 
 @projects_router.post(
     "/{project_id}/inverters",
@@ -119,7 +119,7 @@ def create_project_inverter_endpoint(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return create_project_inverter(project_id, payload, db)
+    return create_project_inverter(project_id, payload, db, current_user)
 
 @projects_router.delete(
     "/inverters/{project_inverter_id}",
@@ -130,7 +130,7 @@ def delete_project_inverter(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_projects_inverter(project_inverter_id, db)
+    return delete_projects_inverter(project_inverter_id, db, current_user)
 
 @projects_router.post(
     "/inverters/{project_inverter_id}/strings",
@@ -143,7 +143,7 @@ def add_electrical_string(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return add_string_to_inverter(project_inverter_id, payload, db)
+    return add_string_to_inverter(project_inverter_id, payload, db, current_user)
 
 @projects_router.delete(
     "/strings/{string_id}",
@@ -154,4 +154,4 @@ def delete_electrical_string(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_string_from_inverter(string_id, db)
+    return delete_string_from_inverter(string_id, db, current_user)

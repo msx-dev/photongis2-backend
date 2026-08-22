@@ -63,9 +63,13 @@ def create_new_user_project(
 
 
 def update_user_project(
-    project_id: uuid.UUID, project_data: ProjectUpdate, db: Session
+    project_id: uuid.UUID, project_data: ProjectUpdate, db: Session, current_user: User
 ) -> UserProject:
-    project = db.query(Project).filter((Project.id) == project_id).first()
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -80,8 +84,12 @@ def update_user_project(
     return project
 
 
-def delete_user_project_rooftops(project_id: uuid.UUID, db: Session):
-    project = db.query(Project).filter((Project.id) == project_id).first()
+def delete_user_project_rooftops(project_id: uuid.UUID, db: Session, current_user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -94,8 +102,12 @@ def delete_user_project_rooftops(project_id: uuid.UUID, db: Session):
     return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
 
 
-def delete_user_project(project_id: uuid.UUID, db: Session):
-    project = db.query(Project).filter(Project.id == project_id).first()
+def delete_user_project(project_id: uuid.UUID, db: Session, current_user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -105,7 +117,18 @@ def delete_user_project(project_id: uuid.UUID, db: Session):
     db.commit()
     return responses.Response(status_code=status.HTTP_204_NO_CONTENT)
 
-def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreate, db: Session):
+def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreate, db: Session, current_user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Can't find project with id '{project_id}'.",
+        )
+
     inverter = ProjectInverter(
         project_id=project_id,
         inverter_id=payload.inverter_id,
@@ -126,7 +149,18 @@ def create_project_inverter(project_id: uuid.UUID, payload: ProjectInverterCreat
 
     return inverter
 
-def get_project_inverters(project_id: uuid.UUID, db: Session):
+def get_project_inverters(project_id: uuid.UUID, db: Session, current_user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
+    if not project:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Can't find project with id '{project_id}'.",
+        )
+
     return (
         db.query(ProjectInverter)
         .options(
@@ -137,11 +171,13 @@ def get_project_inverters(project_id: uuid.UUID, db: Session):
         .all()
     )
 
-def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session):
+def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session, current_user: User):
     inverter = (
         db.query(ProjectInverter)
+        .join(Project, ProjectInverter.project_id == Project.id)
         .filter(
-            ProjectInverter.id == project_inverter_id
+            ProjectInverter.id == project_inverter_id,
+            Project.owner_id == current_user.id,
         )
         .first()
     )
@@ -154,7 +190,20 @@ def delete_projects_inverter(project_inverter_id: uuid.UUID, db: Session):
 
     return None
 
-def add_string_to_inverter(project_inverter_id: uuid.UUID, payload: ElectricalStringCreate, db: Session):
+def add_string_to_inverter(project_inverter_id: uuid.UUID, payload: ElectricalStringCreate, db: Session, current_user: User):
+    project_inverter = (
+        db.query(ProjectInverter)
+        .join(Project, ProjectInverter.project_id == Project.id)
+        .filter(
+            ProjectInverter.id == project_inverter_id,
+            Project.owner_id == current_user.id,
+        )
+        .first()
+    )
+
+    if not project_inverter:
+        raise HTTPException(status_code=404, detail="Project inverter not found")
+
     string = ElectricalString(
         project_inverter_id=project_inverter_id,
         mppt=payload.mppt,
@@ -168,8 +217,14 @@ def add_string_to_inverter(project_inverter_id: uuid.UUID, payload: ElectricalSt
 
     return string
 
-def delete_string_from_inverter(string_id: uuid.UUID, db: Session):
-    string = db.query(ElectricalString).filter(ElectricalString.id == string_id).first()
+def delete_string_from_inverter(string_id: uuid.UUID, db: Session, current_user: User):
+    string = (
+        db.query(ElectricalString)
+        .join(ProjectInverter, ElectricalString.project_inverter_id == ProjectInverter.id)
+        .join(Project, ProjectInverter.project_id == Project.id)
+        .filter(ElectricalString.id == string_id, Project.owner_id == current_user.id)
+        .first()
+    )
 
     if not string:
         raise HTTPException(status_code=404, detail="Electrical string not found")

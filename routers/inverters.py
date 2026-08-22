@@ -33,4 +33,4 @@ def delete_inverter(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_user_inverter(inverter_id, db)
+    return delete_user_inverter(inverter_id, db, current_user)

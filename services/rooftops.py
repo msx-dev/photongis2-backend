@@ -1,5 +1,5 @@
 from sqlalchemy.orm import Session
-from models import Rooftop, Project, Panel
+from models import Rooftop, Project, Panel, User
 from schemas import RooftopCreate, ProjectRooftop, RooftopUpdate,RooftopUpdateResponse
 from fastapi import HTTPException, status, responses
 from models import ElectricalString
@@ -8,8 +8,12 @@ import uuid
 import requests
 
 
-def get_projects_rooftops(project_id: uuid.UUID, db: Session):
-    project = db.query(Project).filter(Project.id == project_id).first()
+def get_projects_rooftops(project_id: uuid.UUID, db: Session, current_user: User):
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not project:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -47,9 +51,13 @@ def get_projects_rooftops(project_id: uuid.UUID, db: Session):
 
 
 def create_new_rooftop(
-    rooftop: RooftopCreate, project_id: uuid.UUID, db: Session
+    rooftop: RooftopCreate, project_id: uuid.UUID, db: Session, current_user: User
 ) -> ProjectRooftop:
-    project = db.query(Project).filter(Project.id == project_id).first()
+    project = (
+        db.query(Project)
+        .filter(Project.id == project_id, Project.owner_id == current_user.id)
+        .first()
+    )
 
     if not project:
         raise HTTPException(
@@ -121,9 +129,14 @@ def create_new_rooftop(
 
 
 def update_project_rooftop(
-    rooftop_id: uuid.UUID, rooftop_data: RooftopUpdate, db: Session
+    rooftop_id: uuid.UUID, rooftop_data: RooftopUpdate, db: Session, current_user: User
 ) -> RooftopUpdateResponse:
-    rooftop = db.query(Rooftop).filter(Rooftop.id == rooftop_id).first()
+    rooftop = (
+        db.query(Rooftop)
+        .join(Project, Rooftop.project_id == Project.id)
+        .filter(Rooftop.id == rooftop_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not rooftop:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
@@ -138,8 +151,13 @@ def update_project_rooftop(
     return rooftop
 
 
-def delete_project_rooftop(rooftop_id: uuid.UUID, db: Session):
-    rooftop = db.query(Rooftop).filter(Rooftop.id == rooftop_id).first()
+def delete_project_rooftop(rooftop_id: uuid.UUID, db: Session, current_user: User):
+    rooftop = (
+        db.query(Rooftop)
+        .join(Project, Rooftop.project_id == Project.id)
+        .filter(Rooftop.id == rooftop_id, Project.owner_id == current_user.id)
+        .first()
+    )
     if not rooftop:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,

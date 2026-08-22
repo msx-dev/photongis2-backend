@@ -40,8 +40,12 @@ def create_new_user_inverter(
     return db_inverter
 
 
-def delete_user_inverter(inverter_id: uuid.UUID, db: Session):
-    inverter = db.query(Inverter).filter(Inverter.id == inverter_id).first()
+def delete_user_inverter(inverter_id: uuid.UUID, db: Session, current_user: User):
+    inverter = (
+        db.query(Inverter)
+        .filter(Inverter.id == inverter_id, Inverter.owner_id == current_user.id)
+        .first()
+    )
 
     if not inverter:
         raise HTTPException(

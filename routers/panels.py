@@ -33,4 +33,4 @@ def delete_panel(
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
-    return delete_user_panel(panel_id, db)
+    return delete_user_panel(panel_id, db, current_user)

@@ -112,6 +112,7 @@ def get_current_project_rooftops(
     rooftops = get_projects_rooftops(
         project_id=project_id,
         db=db,
+        current_user=user,
     )
 
     return _format_rooftops_as_text(rooftops)
