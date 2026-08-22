@@ -1,4 +1,4 @@
-from llm.rag.client import get_chroma_client
+from llm.rag.ingestion.chroma import get_chroma_client
 
 
 def main():

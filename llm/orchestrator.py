@@ -2,6 +2,7 @@ from collections.abc import Iterator
 from typing import Any
 import uuid
 
+import openai
 from langchain_core.messages import (
     AIMessage,
     AIMessageChunk,
@@ -90,37 +91,44 @@ def chat_stream(
     # 4. STREAM LANGGRAPH
     # ------------------------------------------------------------------------
 
-    for chunk, metadata in agent.stream(
-        {
-            "messages": [
-                {
-                    "role": "user",
-                    "content": user_message,
-                }
-            ]
-        },
-        config=config,
-        context=context,
-        stream_mode="messages",
-    ):
+    try:
+        for chunk, metadata in agent.stream(
+            {
+                "messages": [
+                    {
+                        "role": "user",
+                        "content": user_message,
+                    }
+                ]
+            },
+            config=config,
+            context=context,
+            stream_mode="messages",
+        ):
 
-        # --------------------------------------------------------------------
-        # 5. ONLY PROCESS LANGCHAIN MESSAGES
-        # --------------------------------------------------------------------
+            # ----------------------------------------------------------------
+            # 5. ONLY PROCESS LANGCHAIN MESSAGES
+            # ----------------------------------------------------------------
 
-        if not isinstance(chunk, BaseMessage):
-            continue
+            if not isinstance(chunk, BaseMessage):
+                continue
 
-        if isinstance(chunk, ToolMessage):
-            continue
+            if isinstance(chunk, ToolMessage):
+                continue
 
-        if not isinstance(chunk, (AIMessage, AIMessageChunk)):
-            continue
+            if not isinstance(chunk, (AIMessage, AIMessageChunk)):
+                continue
 
-        content = _extract_text_content(chunk.content)
+            content = _extract_text_content(chunk.content)
 
-        if content:
-            yield content
+            if content:
+                yield content
+    except openai.RateLimitError:
+        yield (
+            "The assistant is temporarily rate-limited by its AI provider. "
+            "Please try again in a moment."
+        )
+        return
 
     # ------------------------------------------------------------------------
     # 8. RECORD SUCCESSFUL MESSAGE

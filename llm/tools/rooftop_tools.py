@@ -6,10 +6,14 @@ from services import get_projects_rooftops, get_user_project_by_id
 
 
 def _count_placed_panels(additional_panels) -> int:
-    if isinstance(additional_panels, dict):
-        return len(additional_panels)
+    # The first panel a user places is stored as `initial_polygon`, not in
+    # `additional_panels` (which only holds the auto-filled panels around it).
+    initial_panel_count = 1
 
-    return 0
+    if isinstance(additional_panels, dict):
+        return len(additional_panels) + initial_panel_count
+
+    return initial_panel_count
 
 
 def _format_production(solar_production) -> str:
@@ -89,6 +93,10 @@ def get_current_project_rooftops(
     """
     Get all rooftops in the user's current project, including panel layout,
     panel specifications, and solar production estimates.
+
+    Rooftop and panel data can change between messages (the user may edit
+    the layout in the app), so always call this tool again to get fresh
+    data instead of reusing a previous result from this conversation.
     """
 
     user = runtime.context.user
